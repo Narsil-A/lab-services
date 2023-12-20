@@ -161,6 +161,8 @@ def request_service(request):
     if not request.user.is_client:
         return redirect('client:403')
 
+    services = DiagnosticService.objects.all()
+
     if request.method == 'POST':
         form = DiagnosticRequestForm(request.POST)
         if form.is_valid():
@@ -180,4 +182,9 @@ def request_service(request):
     else:
         form = DiagnosticRequestForm()
 
-    return render(request, 'services/request_service.html', {'form': form})
+    context = {
+        'form': form,
+        'services': services
+    }
+    return render(request, 'services/request_service.html', context)
+
