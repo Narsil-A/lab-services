@@ -1,0 +1,35 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Diagnostic Services{% endblock %}
+
+{% block content %}
+<div class="py-6 px-6">
+    <h1 class="mb-4 text-xl">Diagnostic Services</h1>
+
+    {% if request.user.is_client %}
+        <a href="{% url 'services:request_service' %}" class="inline-block py-4 px-6 bg-blue-600 rounded-xl text-white">Request Services</a>
+    {% endif %}
+
+    {% if requests_services %}
+    <div class="mt-6 flex justify-between">
+        <p class="py-4 px-2 bg-gray-200 font-semibold w-full">Client Username</p>
+        <p class="py-4 px-2 bg-gray-200 font-semibold w-full">Service</p>
+        <p class="py-4 px-2 bg-gray-200 font-semibold w-full">Created At</p>
+        <p class="py-4 px-2 bg-gray-200 font-semibold w-full">Status</p>
+    </div>
+    {% for request_service in requests_services %}
+        <div class="flex justify-between">
+            <p class="py-2 px-2 w-full {% cycle '' 'bg-gray-50' %}">
+                <a href="{% url 'services:detail_service' request_service.id %}">{{ request_service.client.username }}</a>
+            </p>
+            <p class="py-2 px-2 w-full {% cycle '' 'bg-gray-50' %}">{{ request_service.service.get_name_display }}</p>
+            <p class="py-2 px-2 w-full {% cycle '' 'bg-gray-50' %}">{{ request_service.created_at }}</p>
+            <p class="py-2 px-2 w-full {% cycle '' 'bg-gray-50' %}">{{ request_service.latest_status_update }}</p>
+        </div>
+    {% endfor %}
+    {% else %}
+        <p class="mt-6">There are no diagnostic services in the database yet.</p>
+    {% endif %}
+</div>
+{% endblock %}
+
