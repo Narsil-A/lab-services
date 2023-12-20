@@ -8,16 +8,6 @@
 
     <form method="post" action=".">
         {% csrf_token %}
-
-        <div class="mb-4">
-            <label for="service" class="block text-sm font-medium text-gray-700">Choose a Service:</label>
-            <select id="service" name="service" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                {% for service in services %}
-                <option value="{{ service.id }}">{{ service.get_name_display }} - ${{ service.cost }}</option>
-                {% endfor %}
-            </select>
-        </div>
-
        
         {{ form.as_p }}
 
