@@ -22,12 +22,21 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get("SECRET_KEY")
+# for production
+# SECRET_KEY = os.environ.get("SECRET_KEY") 
+SECRET_KEY = "cd032c601f2b2fe11a90f69170a67cc9"
+STRIPE_SECRET_KEY = "sk_test_51OQE8fAJHwuZWWo7KuAi5v8pAeuuCcCeaGW7rl2sZBsajKKic4c9BWjgwvOqSENiCkQZZQREcKGjtAzx9aixfqjX009SiU05BM"
+STRIPE_PUBLIC_KEY = "pk_test_51OQE8fAJHwuZWWo7yJ6CBbMmVWR2Hn8zvVfCYIY29H1hIrQlvA0NiT6yqUUQIjH5fI0vYg194om82vUdtN9aQ92A00TRGfDO1P"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get("DEBUG", "False").lower() == "true"
+# for production 
+#DEBUG = os.environ.get("DEBUG", "False").lower() == "true"
+DEBUG = True
 
-ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS").split(" ")
+# production 
+#ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS").split(" ")
+#deveploment
+ALLOWED_HOSTS = []
 
 
 LOGIN_REDIRECT_URL = '/dashboard/'
@@ -42,6 +51,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "corsheaders",
     "userprofile",
     "phonenumber_field", 
     "services",
@@ -53,12 +63,14 @@ AUTH_USER_MODEL = 'userprofile.User'
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    'corsheaders.middleware.CorsMiddleware',
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+CORS_ALLOW_ALL_ORIGINS = True
 
 ROOT_URLCONF = "labservices.urls"
 
@@ -91,8 +103,11 @@ DATABASES = {
     }
 }
 
-database_url = os.environ.get("DATABASE_URL")
-DATABASES["default"] = dj_database_url.parse(database_url)
+#for deveploment 
+DATABASES["default"] = dj_database_url.parse("postgres://labservices_django_db_user:Bvu7JNIA60TlCvyLg7oGmvAdZmExTx4U@dpg-cm157f6n7f5s73e4djv0-a.oregon-postgres.render.com/labservices_django_db")
+#for production
+"""database_url = os.environ.get("DATABASE_URL")
+DATABASES["default"] = dj_database_url.parse(database_url)"""
 
 
 # Password validation

@@ -59,3 +59,32 @@ class DiagnosticServiceTracker(models.Model):
 
     def __str__(self):
         return f"{self.requested_service.service} - {self.get_status_display()}"
+
+
+
+class Payment(models.Model):
+    PENDING = 'Pending'
+    COMPLETED = 'Completed'
+    FAILED = 'Failed'
+    CANCELED = 'Canceled'
+
+    STATUS_PAY_CHOICES = [
+        (PENDING, 'Pending'),
+        (COMPLETED, 'Completed'),
+        (FAILED, 'Failed'),
+        (CANCELED, 'Canceled'),
+    ]
+
+    status = models.CharField(
+        max_length=50,
+        choices=STATUS_PAY_CHOICES ,
+        default=PENDING,
+    )
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='payments')
+    diagnostic_requests = models.ManyToManyField('DiagnosticRequest', related_name='payments',blank=True)
+    stripe_payment_intent_id = models.CharField(max_length=255)
+    paid_amount = models.DecimalField(max_digits=8, decimal_places=2, blank=True, null=True)
+    currency = models.CharField(max_length=3, default='USD')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)

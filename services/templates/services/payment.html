@@ -1,0 +1,29 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Make Payment{% endblock %}
+
+{% block content %}
+<div class="container mx-auto p-4">
+    <h1 class="text-xl mb-4">Make Payment for the Following Services:</h1>
+    <ul>
+        {% for request in diagnostic_requests %}
+        <li>{{ request.service.get_name_display }} - ${{ request.service.cost }}</li>
+        {% endfor %}
+    </ul>
+    <p>Total amount to be paid: ${{ total_cost }}</p>
+
+    <form id="payment-form">
+        {% csrf_token %}
+        <!-- Stripe Elements will go here -->
+        <div id="card-element"></div>
+        <!-- Errors will be displayed here -->
+        <div id="card-errors" role="alert"></div>
+
+        <button type="submit" id="submit-button"
+            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4">Pay </button>
+    </form>
+</div>
+
+{% endblock %}
+
+

@@ -1,11 +1,20 @@
-from django.db.models import Subquery, OuterRef, Exists
+import stripe
+from django.conf import settings
+from django.http import JsonResponse
+from django.db.models import Subquery, OuterRef, Exists, Sum
 from django.contrib import messages
+
+from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 from labservices.decorators import labstaff_required
 from django.shortcuts import render, redirect, get_object_or_404
+
 from userprofile.models import Notification, User
 from .forms import DiagnosticServiceForm, DiagnosticRequestForm, DiagnosticTrackerUpdateForm
-from .models import DiagnosticService, DiagnosticServiceTracker, DiagnosticRequest
+from .models import DiagnosticService, DiagnosticServiceTracker, DiagnosticRequest, Payment
+
+
+stripe.api_key = settings.STRIPE_SECRET_KEY
 
 
 @labstaff_required
@@ -188,3 +197,86 @@ def request_service(request):
     }
     return render(request, 'services/request_service.html', context)
 
+
+
+
+
+
+
+@login_required
+def make_payment(request):
+    if not request.user.is_client:
+        messages.error(request, "Only clients can make payments.")
+        return redirect('services:dashboard')
+
+    diagnostic_requests = DiagnosticRequest.objects.filter(client=request.user, payments__isnull=True)
+    if not diagnostic_requests.exists():
+        messages.info(request, "You have no unpaid diagnostic requests.")
+        return redirect('services:dashboard')
+
+    total_cost = diagnostic_requests.aggregate(Sum('service__cost'))['service__cost__sum']
+
+    if request.method == 'POST':
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            # Initialize Stripe API
+            stripe.api_key = settings.STRIPE_SECRET_KEY
+
+            # Create a Stripe Payment Intent
+            intent = stripe.PaymentIntent.create(
+                amount=int(total_cost * 100),  # Convert to cents
+                currency='usd',
+                payment_method_types=['card']
+            )
+
+            # Return the client secret in a JSON response
+            return JsonResponse({'client_secret': intent.client_secret})
+
+        # Create a Payment record
+        payment = Payment.objects.create(
+            user=request.user,
+            stripe_payment_intent_id=intent.id,
+            paid_amount=total_cost,
+            currency='USD'
+        )
+
+        # Link payment with all diagnostic requests
+        payment.diagnostic_requests.set(diagnostic_requests)
+
+    # Handling GET request
+    return render(request, 'services/payment.html', {
+        'diagnostic_requests': diagnostic_requests,
+        'total_cost': total_cost
+    })
+
+
+@login_required
+@csrf_exempt  
+def payment_success(request):
+    if request.method == 'POST':
+        payment_id = request.POST.get('payment_id')
+
+        # Retrieve the payment object
+        payment = get_object_or_404(Payment, stripe_payment_intent_id=payment_id)
+
+        # Check if the payment is associated with the current user
+        if payment.user != request.user:
+            return JsonResponse({'message': 'Unauthorized'}, status=401)
+
+        # Update the payment status to 'Completed'
+        payment.status = Payment.COMPLETED
+        payment.save()
+
+        # Retrieve and update all diagnostic requests linked to this payment
+        diagnostic_requests = payment.diagnostic_requests.all()
+        for request in diagnostic_requests:
+            # Update each request as needed, e.g., change a status field
+            # request.status = 'Paid'  # Example status update, adjust according to your model
+            request.save()
+
+        return JsonResponse({'message': 'Payment processed successfully'})
+
+    return JsonResponse({'message': 'Invalid request'}, status=400)
+
+@login_required
+def payment_succeed(request):
+    return render(request, 'pay_success.html')
