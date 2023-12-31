@@ -153,7 +153,7 @@
 
 
     document.addEventListener('DOMContentLoaded', function () {
-        const stripe = Stripe('pk_test_51OQE8fAJHwuZWWo7yJ6CBbMmVWR2Hn8zvVfCYIY29H1hIrQlvA0NiT6yqUUQIjH5fI0vYg194om82vUdtN9aQ92A00TRGfDO1P');
+        const stripe = Stripe("STRIPE_PUBLIC_KEY");
         const elements = stripe.elements();
         const card = elements.create('card');
         card.mount('#card-element');
