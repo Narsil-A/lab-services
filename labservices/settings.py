@@ -24,9 +24,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 # for production
 # SECRET_KEY = os.environ.get("SECRET_KEY") 
-SECRET_KEY = "cd032c601f2b2fe11a90f69170a67cc9"
-STRIPE_SECRET_KEY = "sk_test_51OQE8fAJHwuZWWo7KuAi5v8pAeuuCcCeaGW7rl2sZBsajKKic4c9BWjgwvOqSENiCkQZZQREcKGjtAzx9aixfqjX009SiU05BM"
-STRIPE_PUBLIC_KEY = "pk_test_51OQE8fAJHwuZWWo7yJ6CBbMmVWR2Hn8zvVfCYIY29H1hIrQlvA0NiT6yqUUQIjH5fI0vYg194om82vUdtN9aQ92A00TRGfDO1P"
+SECRET_KEY = "SECRET_KEY"
+STRIPE_SECRET_KEY = "STRIPE_SECRET_KEY"
+STRIPE_PUBLIC_KEY = "STRIPE_PUBLIC_KEY"
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # for production 
